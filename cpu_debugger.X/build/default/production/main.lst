@@ -1,0 +1,226 @@
+MPASM 5.87                          MAIN.ASM   8-28-2022  22:15:12         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 
+                      00002 
+                      00003 ; PIC16F57 Configuration Bit Settings
+                      00004 
+                      00005 ; Assembly source line config statements
+                      00006 
+                      00007 #include "p16f57.inc"
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ; Build date : Jan 06 2020
+                      00005 ;  MPASM PIC16F57 processor include
+                      00006 ; 
+                      00007 ;  (c) Copyright 1999-2020 Microchip Technology, All rights reserved
+                      00008 ;==========================================================================
+                      00009 
+                      00187         LIST
+                      00008 
+                      00009 ; CONFIG
+                      00010 ; __config 0xFFE
+0FFF   0FFE           00011  __CONFIG _OSC_HS & _WDT_ON & _CP_OFF
+                      00012 
+                      00013 
+  00000008            00014 TMP     EQU     0x08
+  00000009            00015 CNT     EQU     0x09
+                      00016         
+                      00017 #DEFINE TX      PORTA,3
+                      00018         
+                      00019         
+                      00020 
+                      00021     ;割り込みないので0番地から
+                      00022     ORG 0X000
+                      00023         
+                      00024     ;初期設定
+                      00025     ;バンク0
+0000   04A3           00026     BCF     STATUS,PA0
+0001   04C3           00027     BCF     STATUS,PA1
+                      00028     
+                      00029     ;タイマー設定
+0002   0C01           00030     MOVLW   B'00000001'
+0003   0002           00031     OPTION
+                      00032     
+                      00033     ;ピンの入出力
+0004   0C08           00034     MOVLW   B'00001000'
+0005   0005           00035     TRIS    PORTA
+0006   0C00           00036     MOVLW   B'00000000'
+0007   0006           00037     TRIS    PORTB
+0008   0C00           00038     MOVLW   B'00000000'
+0009   0007           00039     TRIS    PORTC
+000A   0066           00040     CLRF    PORTB
+000B   0067           00041     CLRF    PORTC
+                      00042     
+                      00043     
+MPASM 5.87                          MAIN.ASM   8-28-2022  22:15:12         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00044     
+000C                  00045 MAIN
+                      00046     ;テスト用
+000C   0C01           00047     MOVLW   B'00000001'
+000D   0026           00048     MOVWF   PORTB
+                      00049     ;スタートビット(0)が来たら、スキップ
+000E   0665           00050     BTFSC   TX
+000F   0A??           00051     GOTO    MAIN
+                      00052     ;7Dをセット（スタートビットから1ビット目までの時間
+0010   0C7D           00053     MOVLW   0x7D
+0011   0021           00054     MOVWF   TMR0
+                      00055     ;8bit分
+0012   0C08           00056     MOVLW   0x08
+0013   0029           00057     MOVWF   CNT
+                      00058     
+0014   0C02           00059     MOVLW   B'00000010'
+0015   0026           00060     MOVWF   PORTB
+0016   0068           00061     CLRF    TMP
+                      00062     
+0017                  00063 S_WAIT_LOOP
+                      00064     ;タイマーを監視
+Message[305]: Using default destination of 1 (file).
+0017   02A1           00065     INCF    TMR0
+Message[305]: Using default destination of 1 (file).
+0018   02E1           00066     DECFSZ  TMR0
+0019   0A??           00067     GOTO    S_WAIT_LOOP
+                      00068     ;タイマー0が0になったら
+                      00069 
+001A                  00070 M_WAIT_LOOP
+                      00071     
+001A   0C04           00072     MOVLW   B'00000100'
+001B   0026           00073     MOVWF   PORTB
+                      00074     
+                      00075     ;キャリーを0の状態で
+001C   0403           00076     BCF     STATUS,0
+                      00077     ;1だったらキャリーを立てる
+001D   0665           00078     BTFSC   TX
+001E   0503           00079     BSF     STATUS,0
+Message[305]: Using default destination of 1 (file).
+001F   0368           00080     RLF     TMP
+                      00081     
+Message[305]: Using default destination of 1 (file).
+0020   02E9           00082     DECFSZ  CNT
+0021   0A??           00083     GOTO M_WAIT_LOOP
+                      00084     
+                      00085     ;テスト用
+0022   0208           00086     MOVF    TMP,W
+0023   0027           00087     MOVWF   PORTC
+                      00088     
+0024   0A??           00089     GOTO MAIN
+                      00090     
+Warning[205]: Found directive in column 1. (END)
+0FFE                  00091 END 
+MPASM 5.87                          MAIN.ASM   8-28-2022  22:15:12         PAGE  3
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+C                                 00000000
+CNT                               00000009
+DC                                00000001
+F                                 00000001
+FSR                               00000004
+INDF                              00000000
+MAIN                              0000000C
+M_WAIT_LOOP                       0000001A
+NOT_PD                            00000003
+NOT_TO                            00000004
+PA0                               00000005
+PA1                               00000006
+PA2                               00000007
+PCL                               00000002
+PORTA                             00000005
+PORTB                             00000006
+PORTC                             00000007
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RC0                               00000000
+RC1                               00000001
+RC2                               00000002
+RC3                               00000003
+RC4                               00000004
+RC5                               00000005
+RC6                               00000006
+RC7                               00000007
+STATUS                            00000003
+S_WAIT_LOOP                       00000017
+T0CKI                             00000004
+T0CS                              00000005
+T0SE                              00000004
+TMP                               00000008
+TMR0                              00000001
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+MPASM 5.87                          MAIN.ASM   8-28-2022  22:15:12         PAGE  4
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+TRISC3                            00000003
+TRISC4                            00000004
+TRISC5                            00000005
+TRISC6                            00000006
+TRISC7                            00000007
+TX                                PORTA,3
+W                                 00000000
+Z                                 00000002
+_CONFIG                           00000FFF
+_CP_OFF                           00000FFF
+_CP_ON                            00000FF7
+_HS_OSC                           00000FFE
+_IDLOC0                           00000800
+_IDLOC1                           00000801
+_IDLOC2                           00000802
+_IDLOC3                           00000803
+_LP_OSC                           00000FFC
+_OSC_HS                           00000FFE
+_OSC_LP                           00000FFC
+_OSC_RC                           00000FFF
+_OSC_XT                           00000FFD
+_RC_OSC                           00000FFF
+_WDT_OFF                          00000FFB
+_WDT_ON                           00000FFF
+_XT_OSC                           00000FFD
+__16F57                           00000001
+
+Errors   :     0
+Warnings :     1 reported,     0 suppressed
+Messages :     4 reported,     0 suppressed
+
+
