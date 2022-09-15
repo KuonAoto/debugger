@@ -1,5 +1,4 @@
 
-
 ; PIC16F57 Configuration Bit Settings
 
 ; Assembly source line config statements
@@ -10,21 +9,18 @@
 ; __config 0xFFE
  __CONFIG _OSC_HS & _WDT_ON & _CP_OFF
 
-
-TMP	EQU	0x08
-CNT	EQU	0x09
+TMP	EQU	0x09
+CNT	EQU	0x0A
 	
-#DEFINE TX	PORTA,3
-	
-	
+#DEFINE TX	PORTA,3	
 
     ;割り込みないので0番地から
     ORG 0X000
 	
     ;初期設定
     ;バンク0
-    BCF	    STATUS,PA0
-    BCF	    STATUS,PA1
+    ;BCF	    STATUS,PA0
+    ;BCF	    STATUS,PA1
     
     ;タイマー設定
     MOVLW   B'00000001'
@@ -40,15 +36,17 @@ CNT	EQU	0x09
     CLRF    PORTB
     CLRF    PORTC
     
-    
+    MOVLW   B'10000000'
+    MOVWF   PORTB
     
 MAIN
     ;テスト用
     MOVLW   B'00000001'
     MOVWF   PORTB
+MAIN_LOOP
     ;スタートビット(0)が来たら、スキップ
     BTFSC   TX
-    GOTO    MAIN
+    GOTO    MAIN_LOOP
     ;7Dをセット（スタートビットから1ビット目までの時間
     MOVLW   0x7D
     MOVWF   TMR0
@@ -59,9 +57,8 @@ MAIN
     MOVLW   B'00000010'
     MOVWF   PORTB
     CLRF    TMP
-    
 S_WAIT_LOOP
-    ;タイマーを監視
+    ;タイマー
     INCF    TMR0
     DECFSZ  TMR0
     GOTO    S_WAIT_LOOP
@@ -71,6 +68,7 @@ M_WAIT_LOOP
     
     MOVLW   B'00000100'
     MOVWF   PORTB
+
     
     ;キャリーを0の状態で
     BCF	    STATUS,0
@@ -79,8 +77,11 @@ M_WAIT_LOOP
     BSF	    STATUS,0
     RLF	    TMP
     
+    MOVLW   0x3C
+    MOVWF   TMR0
+    
     DECFSZ  CNT
-    GOTO M_WAIT_LOOP
+    GOTO    S_WAIT_LOOP
     
     ;テスト用
     MOVF    TMP,W
@@ -88,4 +89,4 @@ M_WAIT_LOOP
     
     GOTO MAIN
     
-END 
+    END
